@@ -5,12 +5,13 @@ CACHE MANIFEST
 # Explicitly cached 'master entries'.
 CACHE:
 
-index.html
-img/troll.png
-img/blood/explosions/explosion0.png
-img/blood/explosions/explosion1.png
-img/blood/explosions/explosion2.png
-img/blood/splatterns/splatternFixed.png
+#index.html
+#img/troll.png
+#img/blood/explosions/explosion0.png
+#img/blood/explosions/explosion1.png
+
+#img/blood/explosions/explosion2.png
+#img/blood/splatterns/splatternFixed.png
 
 
 snd/bang.ogg
