@@ -1,6 +1,8 @@
 
 <!doctype html>
 <html lang="en" manifest="manifest.appcache">
+<!-- <html lang="en">
+ -->
 <head>
 	<meta charset="utf-8" />
 	<title>HTML5 Canvas Explode Demo</title>
@@ -18,13 +20,28 @@
 	html, body {
 		width: 100%;
 		height: 100%;
+		position: relative;
+		z-index: 0;
 	}
 
 	canvas {
 		display: block;
-		background: whiteSmoke;
 		width: 100%;
 		height: 100%;
+		position: relative;
+		z-index: 10;
+
+	}
+	body{
+		background: #ffffff; /* Old browsers */
+		background: -moz-linear-gradient(top,  #ffffff 0%, #e5e5e5 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#e5e5e5)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(top,  #ffffff 0%,#e5e5e5 100%); /* Chrome10+,Safari5.1+ */
+		background: -o-linear-gradient(top,  #ffffff 0%,#e5e5e5 100%); /* Opera 11.10+ */
+		background: -ms-linear-gradient(top,  #ffffff 0%,#e5e5e5 100%); /* IE10+ */
+		background: linear-gradient(to bottom,  #ffffff 0%,#e5e5e5 100%); /* W3C */
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
+
 	}
 	#presentation{
 		position: fixed;
@@ -40,43 +57,73 @@
 	#bang{
 		display: none;
 	}
-	.blood0
+	.explosion0
 	{	position: absolute;
 		top: 0px;
 		left: 0px;
 		height: 169px;
 		width: 300px;
-		background: url('img/blood/blood0.png');
-		z-index: 9999;
-		animation: bloodAnimation  infinite;
-		-webkit-animation: bloodAnimation 0.25s steps(7, end)  ; /* Safari and Chrome ONE FUCKING STEP LESS! STARTS FROM 0 */
+		background: url('img/blood/explosions/explosion0.png');
+		z-index: 2;
+		animation: bloodExplosion 0.25s steps(7, end);
+		-webkit-animation: bloodExplosion 0.25s steps(7, end)  ; /* Safari and Chrome ONE FUCKING STEP LESS! STARTS FROM 0 */
 
 	}
-	.bloodGeneral{
-		position: absolute;
+	.explosionGeneral{
+		position: relative;
 		top: 0px;
 		left: 0px;
 		height: 169px;
 		width: 300px;
 		background:none;
-		z-index: 9999;
-		animation: myfirst  infinite;
-		-webkit-animation: bloodAnimation 0.5s steps(14, end)  ; /* Safari and Chrome ONE FUCKING STEP LESS! STARTS FROM */
+		z-index: 2;
+		animation: bloodExplosion 0.5s steps(14, end);
+		-webkit-animation: bloodExplosion 0.5s steps(14, end)  ; /* STARTS FROM ONE FUCKING STEP LESS! */
 
 	}
-	
+	.splattern{
+		position: fixed;
+		top: 0px;
+		left: 0px;
+		height: 169px;
+		width: 300px;
+		z-index: 2;
+		opacity: 0;
+		background: url('img/blood/splatterns/splatternFixed.png');
+		animation: bloodFade 3s ease-out;
+		-webkit-animation: bloodFade 3s ease-out  ; /* STARTS FROM ONE FUCKING STEP LESS! */
+	}
 
-	@keyframes bloodAnimation
+
+
+	@keyframes bloodExplosion
 	{
 	0%   {background-position: 0% 0%;}
 	100% {background-position: 0% 100%;}
 	}
 
-	@-webkit-keyframes bloodAnimation /* Safari and Chrome */
+	@-webkit-keyframes bloodExplosion /* Safari and Chrome */
 	{
 	0%   {background-position: 0% 0%;}
 	
 	100% {background-position: 0% 100%;}
+
+	}
+	@keyframes bloodFade
+	{
+	0%   {opacity: 1;}
+	25%	 {opacity: 1;}
+	75%  {opacity: 1;}
+	100% {opacity: 0;}
+	}
+
+	@-webkit-keyframes bloodFade /* Safari and Chrome */
+	{
+	0%   {opacity: 1;}
+	25%	 {opacity: 1;}
+	75%  {opacity: 1;}
+	100% {opacity: 0;}
+
 	}
 
 	#killingspree{
@@ -187,6 +234,8 @@ Your browser does not support the audio element.
 
 			HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 			window.onclick = function(event){
+
+				//TODO: Got to split this code, tooooooo much all together...
 				coords = canvas.relMouseCoords(event);
 
 				canvasX = coords.x;
@@ -195,23 +244,38 @@ Your browser does not support the audio element.
 
 				particles.forEach(function(particle) {
 					if( (particle.x > canvasX - ((img_width/2)+deltaShot) && particle.x < canvasX + ((img_width/2)+deltaShot)) 
-						&& (particle.y > canvasY - ((img_height/2)+deltaShot) && particle.y < canvasY +((img_height/2)+deltaShot) ) ){
+						&& (particle.y > canvasY - ((img_height/2)+deltaShot) && particle.y < canvasY +((img_height/2)+deltaShot) ) && particle.dead == false ){
 						particle.dead = true;
-						var explosion = document.createElement("div");
-						document.body.appendChild(explosion);
-						$(explosion).css('top',canvasY-85).css('left',canvasX-150);
-						var bloodAnimation = 'blood'+parseInt(Math.random()*4);
+						var splattern = document.createElement("div");
+						document.body.appendChild(splattern);
 
-						if( bloodAnimation == 'blood0'){
+						var explosion = document.createElement('div');
+						splattern.appendChild(explosion);
+						$(splattern).addClass('splattern');
 
-							explosion.className += 'blood0'
+
+
+						$(splattern).css('top',canvasY-85).css('left',canvasX-150);
+						$(splattern).css('-webkit-transform', 'rotateZ('+Math.round(Math.random()*(180-0)+0)+'deg)');
+						var bloodExplosion = 'explosion'+Math.round(Math.random()*(2-0)+0);
+						if( bloodExplosion == 'explosion0'){
+
+							explosion.className += 'explosion0'
 
 						}else{
-							explosion.className += 'bloodGeneral';
-							$('.bloodGeneral').css('background', 'url("img/blood/'+bloodAnimation+'.png")');
+							explosion.className += 'explosionGeneral';
+							$('.explosionGeneral').css('background', 'url("img/blood/explosions/'+bloodExplosion+'.png")');
 						}
 						
+						$(explosion).on('oanimationend  webkitAnimationEnd animationend mozAnimationEnd', function() { 
+						   
+						   explosion.parentNode.removeChild(explosion);
+						   
 
+						});
+						$(splattern).on('oanimationend  webkitAnimationEnd animationend mozAnimationEnd', function() {
+						   		splattern.parentNode.removeChild(splattern);
+						   });
 
 
 						killingspree ++;
@@ -239,10 +303,8 @@ Your browser does not support the audio element.
 								$("#points").html(points);
 
 						}
-						$(explosion).bind('oanimationend transitionend webkitTransitionEnd animationend webkitAnimationEnd', function() { 
-						   explosion.parentNode.removeChild(explosion);
 
-				});
+					
 					}else{
 						killingspree=0;
 					}
