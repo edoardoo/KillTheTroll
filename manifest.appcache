@@ -1,0 +1,30 @@
+CACHE MANIFEST
+
+# 2013/05/09:v0.2
+
+# Explicitly cached 'master entries'.
+CACHE:
+
+index.html
+img/troll.png
+img/blood/blood0.png
+img/blood/blood1.png
+img/blood/blood2.png
+img/blood/blood3.png
+img/blood/blood4.png
+
+snd/bang.ogg
+http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js
+
+# Resources that require the user to be online.
+NETWORK:
+
+
+
+# static.html will be served if main.py is inaccessible
+# offline.jpg will be served in place of all images in images/large/
+# offline.html will be served in place of all other .html files
+FALLBACK:
+#/main.py /static.html
+#images/large/ images/offline.jpg
+#*.html /offline.html

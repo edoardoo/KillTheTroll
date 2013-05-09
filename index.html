@@ -1,176 +1,436 @@
 
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>HTML5 Canvas Explode Demo</title>
-		<link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=320 initial-scale=1.0, user-scalable=no" />
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<html lang="en" manifest="manifest.appcache">
+<head>
+	<meta charset="utf-8" />
+	<title>HTML5 Canvas Explode Demo</title>
+<!-- 	<link rel="stylesheet" href="styles.css" />
+ -->	<meta name="viewport" content="width=320 initial-scale=1.0, user-scalable=no" />
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
-<style type="text/css">
-* {
-	margin: 0; padding: 0;
-}
+	<style type="text/css">
+	* {
+		margin: 0; padding: 0;
+				font-family:futura;
 
-html, body {
-	width: 100%;
-	height: 100%;
-}
+	}
 
-canvas {
-	display: block;
-	background: whiteSmoke;
+	html, body {
 		width: 100%;
-	height: 100%;
-}
-#presentation{
-	position: fixed;
-	background: rgba(0,0,0,0.7);
-	width: 100%;
-	height: 70px;
-	box-shadow: 7px 7px 13px rgba(0,0,0,0.3);
-	color: white;
-	font-family:futura;
-	font-size: 30px;
-	padding-left: 50px;
-	padding-top: 10px;
-}
-</style>
+		height: 100%;
+	}
+
+	canvas {
+		display: block;
+		background: whiteSmoke;
+		width: 100%;
+		height: 100%;
+	}
+	#presentation{
+		position: fixed;
+		background: rgba(0,0,0,0.9);
+		width: 100%;
+		height: 70px;
+		box-shadow: 2px 3px 8px rgba(0,0,0,0.3);
+		color: white;
+		font-family:futura;
+		font-size: 30px;
+		padding-top: 10px;
+	}
+	#bang{
+		display: none;
+	}
+	.blood0
+	{	position: absolute;
+		top: 0px;
+		left: 0px;
+		height: 169px;
+		width: 300px;
+		background: url('img/blood/blood0.png');
+		z-index: 9999;
+		animation: bloodAnimation  infinite;
+		-webkit-animation: bloodAnimation 0.25s steps(7, end)  ; /* Safari and Chrome ONE FUCKING STEP LESS! STARTS FROM 0 */
+
+	}
+	.bloodGeneral{
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		height: 169px;
+		width: 300px;
+		background:none;
+		z-index: 9999;
+		animation: myfirst  infinite;
+		-webkit-animation: bloodAnimation 0.5s steps(14, end)  ; /* Safari and Chrome ONE FUCKING STEP LESS! STARTS FROM */
+
+	}
+	
+
+	@keyframes bloodAnimation
+	{
+	0%   {background-position: 0% 0%;}
+	100% {background-position: 0% 100%;}
+	}
+
+	@-webkit-keyframes bloodAnimation /* Safari and Chrome */
+	{
+	0%   {background-position: 0% 0%;}
+	
+	100% {background-position: 0% 100%;}
+	}
+
+	#killingspree{
+
+		position: absolute;
+		height: 160px;
+		width: 400px;
+		margin: auto;
+		color: #fefefe;
+		background: rgba(0,0,0,0.8);
+		opacity: 0;
+		z-index: 9999;
+		text-align: center;
+		margin-left: -200px;
+		left: 50%;
+		top: 50%;
+		margin-top: -80px;
+		font-size: 30px;
+		line-height: 80px;
+		box-shadow: 2px 3px 8px rgba(0,0,0,0.3);
+		-webkit-transition: all 0.3s ease-out;  /* Chrome 1-25, Safari 3.2+ */
+     	-moz-transition: all 0.3s ease-out;  /* Firefox 4-15 */
+       	-o-transition: all 0.3s ease-out;  /* Opera 10.50–12.00 */
+        transition: all 0.3s ease-out;  /* Chrome 26, Firefox 16+, IE 10+, Opera 12.10+ */
+	}
+	#points{
+		position: relative;
+		color: white;
+		float: right;
+		right: 50px;
+
+	}
+	#title{
+		position: relative;
+		left:50px;
+	}
+
+	</style>
 
 </head>
 <body>
-<div id="presentation">Hit anywhere to shoot colors!</div>
-<canvas id="output" ></canvas>
+		<div id="killingspree"></div>
+
+	<div id="presentation"><span id = "title">Kill the TROOOLLOLLOOOOLS!</span><span id = "points" value="0">0</span></div>
+	<canvas id="output" ></canvas>
+<audio preload="auto" controls id="bang">
+  <source src="snd/bang.ogg" type="audio/ogg">
+Your browser does not support the audio element.
+</audio>
 
 
-<script type="text/javascript">
+	<script type="text/javascript">
 
-jQuery(document).ready(function(){
-   $('body').click(function(e){
-      BOOM(e.pageX , e.pageY);
-   }); 
-})
-window.requestAnimationFrame=function(){return window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.msRequestAnimationFrame||window.oRequestAnimationFrame||function(f){window.setTimeout(f,1e3/60)}}();
-	
-	var canvas = document.querySelector('canvas');
-	var ctx = canvas.getContext('2d');
+(function() {
+		//define the animation refresh (frame rendering) with built-in browser timing
+		 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.msRequestAnimationFrame||window.oRequestAnimationFrame||function(f){window.setTimeout(f,40/60)}
+		})();
 
-function BOOM(actualX,actualY) {
-	
-	// Shim with setTimeout fallback
-	
+	//define some variables: canvas, context, img to put inside the context and an array of bouncing objects
+			var canvas = document.querySelector('canvas');
+			var ctx = canvas.getContext('2d');
+			var img = new Image();
+			//IMPORTANT: Wait for the picture to be loaded!
+			img.onload = function(){
 
-	var laX = actualX;
-	var laY = actualY;	
-	var W = canvas.width = window.innerWidth;
-	var H = canvas.height = window.innerHeight;
-	// Let's set our gravity
-	var gravity = 1;
-	
-	// Time to write a neat constructor for our
-	// particles.
-	// Lets initialize a random color to use for
-	// our particles and also define the particle
-	// count.
-	var particle_count = parseInt(Math.random() * 30);
-	var particles = [];
-	
-	var random_color = 'rgb(' +
-			parseInt(Math.random() * 255) + ',' +
-			parseInt(Math.random() * 255) + ',' +
-			parseInt(Math.random() * 255) + ')';
-	
-	function Particle() {
-		this.radius = parseInt(Math.random() * 8);
-		this.x = actualX;
-		this.y = actualY;
-		
-		this.color = random_color;
-		
-		// Random Initial Velocities
-		this.vx = Math.random() * 4 - 2;
-		// vy should be negative initially
-		// then only will it move upwards first
-		// and then later come downwards when our
-		// gravity is added to it.
-		this.vy = Math.random() * -14 - 1;
-		
-		// Finally, the function to draw
-		// our particle
-		this.draw = function() {
-			ctx.fillStyle = this.color;
+			        beginAnimation();
+			};
+			//yes, the src goes after
+			img.src = 'img/troll.png';
+
+			//how many bouncing objects?
+			var particle_count = 1;  
+			var particles = [];
+			var particle;
+			var W = canvas.width = window.innerWidth;
+			var H = canvas.height = window.innerHeight;
+			var img_width = 120;
+			var killingspree = 0;
+			var points = 0;
+
+			var img_height = 100;
+
+			function playPause() {
+
+		       var song = document.getElementsByTagName('audio')[0];
+		       
+		         song.play();
+
+			}
+			function relMouseCoords(event){
+			    var totalOffsetX = 0;
+			    var totalOffsetY = 0;
+			    var canvasX = 0;
+			    var canvasY = 0;
+			    var currentElement = this;
+
+			    do{
+			        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+			        totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+			    }
+			    while(currentElement = currentElement.offsetParent)
+
+			    canvasX = event.pageX - totalOffsetX;
+			    canvasY = event.pageY - totalOffsetY;
+
+			    return {x:canvasX, y:canvasY}
+			}
+
+			HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+			window.onclick = function(event){
+				coords = canvas.relMouseCoords(event);
+
+				canvasX = coords.x;
+				canvasY = coords.y;
+				var deltaShot = 30;
+
+				particles.forEach(function(particle) {
+					if( (particle.x > canvasX - ((img_width/2)+deltaShot) && particle.x < canvasX + ((img_width/2)+deltaShot)) 
+						&& (particle.y > canvasY - ((img_height/2)+deltaShot) && particle.y < canvasY +((img_height/2)+deltaShot) ) ){
+						particle.dead = true;
+						var explosion = document.createElement("div");
+						document.body.appendChild(explosion);
+						$(explosion).css('top',canvasY-85).css('left',canvasX-150);
+						var bloodAnimation = 'blood'+parseInt(Math.random()*4);
+
+						if( bloodAnimation == 'blood0'){
+
+							explosion.className += 'blood0'
+
+						}else{
+							explosion.className += 'bloodGeneral';
+							$('.bloodGeneral').css('background', 'url("img/blood/'+bloodAnimation+'.png")');
+						}
+						
+
+
+
+						killingspree ++;
+						points += 5;
+						$("#points").html(points);
+
+						if (killingspree == 7){
+							$("#killingspree").html('WOOO! KILLING SPREE! </br> +10  ')
+
+
+							$("#killingspree").css('opacity','1');
+							setTimeout(function(){
+								$("#killingspree").css('opacity','0')
+							}, 1000);
+								points += 10;
+								$("#points").html(points);
+
+						}else if(killingspree == 14){
+							$("#killingspree").html('GOD MODE! WOAH! </br> +20 ');
+							$("#killingspree").css('opacity','1');
+							setTimeout(function(){
+								$("#killingspree").css('opacity','0')
+							}, 1000);
+								points += 20;
+								$("#points").html(points);
+
+						}
+						$(explosion).bind('oanimationend transitionend webkitTransitionEnd animationend webkitAnimationEnd', function() { 
+						   explosion.parentNode.removeChild(explosion);
+
+				});
+					}else{
+						killingspree=0;
+					}
+				});
+				playPause();
+					// explosion.parentNode.removeChild(explosion);
+				
+
+
+			};
+
+			function Particle() {
+
+				//define properties of a bouncing object, such as where it start, how fast it goes
+
+				var W = canvas.width = window.innerWidth;
+				var H = canvas.height = window.innerHeight;
+				this.radius = 20;
+				this.x = parseInt(Math.random() * W);
+				this.y = H;
+				this.dead = false;
+
+				//Uncomment for coloured particles: 
+
+				// this.color = 'rgb(' +
+				// parseInt(Math.random() * 255) + ',' +
+				// parseInt(Math.random() * 255) + ',' +
+				// parseInt(Math.random() * 255) + ')';
+
+				//end coloured particles
+
+				if (this.x > W/2 ){
+
+					this.vx = Math.random() * (-15 - -5) + -5;
+
+				}else{
+
+					this.vx = Math.random() * (15 - 5) + 5;
+
+				}
+
+
+				this.vy = Math.random() * (-25 - -20) + -2;
+				// var rotating = parseInt(Math.random() * 10 );
+				var rotating = 4;
+					 if (rotating == 5){
+					 	this.rotate = 'left';
+					 }else if(rotating == 6){
+					 	this.rotate = 'right';
+					 }
+
+				//we will call this function to actually draw the bouncing object at EVERY FRAME
+
+				this.draw = function() {
+					// Bouncing pictures were not bouncing because there were no this.x this.y . Shame on me. 
+
+					 if (this.rotate == 'left'){
+					 	ctx.save();
+					 	ctx.translate(0,0);
+					 	ctx.rotate(-2 * (Math.PI /360) );
+					 	ctx.drawImage(img,this.x,this.y);
+					 	ctx.restore();
+
+					 }else if (this.rotate == 'right'){
+					 	ctx.translate(this.x, this.y);
+						ctx.rotate(Math.PI /4);
+						ctx.translate(canvas.width/2, 0);
+
+
+					 	ctx.drawImage(img,this.x,this.y);
+
+
+
+					 }else{
+
+					 	ctx.drawImage(img,this.x,this.y);
+
+					 }
+
+
+
+
+					// WORKING PARTICLES STARTS HERE
+
+					// ctx.fillStyle = this.color;
+
+					// ctx.beginPath();
+
+					// ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
+					// ctx.fill();
+
+
+					// ctx.closePath();
+
+					//WORKING PARTICLES ENDS HERE
+
+
+				};
+
+			}
+
 			
-			ctx.beginPath();
-			
-			ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
-			ctx.fill();
-			
-			ctx.closePath();
-		};
-	}
-	
-	// Now lets quickly create our particle
-	// objects and store them in particles array
-	for (var i = 0; i < particle_count; i++) {
-		var particle = new Particle();
-		particles.push(particle);
-	}
-	
-	
-	// Finally, writing down the code to animate!
-	(function renderFrame() {
-		requestAnimationFrame(renderFrame);
-		
-		// Clearing screen to prevent trails
-		ctx.clearRect(0, 0, W, H);
-		
-		particles.forEach(function(particle) {
-			
-			// The particles simply go upwards
-			// It MUST come down, so lets apply gravity
-			particle.vy += gravity;
-			
-			// Adding velocity to x and y axis
-			particle.x += particle.vx;
-			particle.y += particle.vy;
-			
-			// We're almost done! All we need to do now
-			// is to reposition the particles as soon
-			// as they move off the canvas.
-			// We'll also need to re-set the velocities
-			
-			
-			
-			particle.draw();
-		
-		});
-	}());
-	
-	
-	
-	// Thats it guys!
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-};
-</script>
+
+			function renderFrame() {
+
+				//RENDER THE PARTICLEEEEEEES!
+
+				requestAnimationFrame(renderFrame);
+
+				// Clearing screen to prevent trails
+									ctx.clearRect(0,0, W, H);
+
+
+				particles.forEach(function(particle) {
+
+					// The bouncing objects simply go upwards
+					// It MUST come down, so lets apply gravity
+					particle.vy += 0.6;
+
+					// Adding velocity to x and y axis
+					particle.x += particle.vx;
+					particle.y += particle.vy;
+
+					// We're almost done! All we need to do now
+					// is to reposition the bouncing objects as soon
+					// as they move off the canvas.
+					// We'll also need to re-set the velocities
+
+					if (
+						// off the right side
+						particle.x + particle.radius > W ||
+						// off the left side
+						particle.x - particle.radius < 0 ||
+						// off the bottom
+						particle.y + particle.radius > H
+					) {
+
+						// If any of the above conditions are met
+						// then we need to re-position the bouncing objects
+						// on the base :)
+
+
+						// If we do not re-set the velocities then
+						// the bouncing objects will stick to base :D
+
+						// Velocity X
+						particle.dead = false;
+						particle.x = parseInt(Math.random() * W);
+						particle.y = H;
+						if (particle.x > W/2 ){
+
+							particle.vx = Math.random() * (-15 - -5) + -5;
+
+						}else{
+
+							particle.vx = Math.random() * (15 - 5) + 5;
+
+
+						}
+						particle.vy = Math.random() * (-25 - -22) + -25;
+
+
+					}
+
+					if(particle.dead == false){
+
+					particle.draw();
+
+					}
+
+				});
+			}
+
+			function beginAnimation(){
+						//create the particles and start to render them
+
+				       for (var i = 0; i < particle_count; i++) {
+							particle = new Particle();
+							particles.push(particle);
+						}
+
+						//BOUNCE MOFOS!
+				       	renderFrame();
+
+				}
+
+
+
+	</script>
 </body>
 </html>
