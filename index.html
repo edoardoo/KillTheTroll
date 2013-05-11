@@ -214,7 +214,7 @@ Your browser does not support the audio element.
 			img.src = 'img/troll.png';
 
 			//how many bouncing objects?
-			var particle_count = 1;  
+			var particle_count = 2;  
 			var particles = [];
 			var particle;
 			var W = canvas.width = window.innerWidth;
@@ -224,12 +224,15 @@ Your browser does not support the audio element.
 			var points = 0;
 
 			var img_height = 100;
+			var song = document.getElementsByTagName('audio')[0];
 
 			function playPause() {
+				//finally multishot
 
-		       var song = document.getElementsByTagName('audio')[0];
-		       
-		         song.play();
+		       	// song.currentTime(0).play();
+				song.currentTime = 0;
+			    song.play();
+
 
 			}
 			function relMouseCoords(event){
@@ -260,11 +263,18 @@ Your browser does not support the audio element.
 				canvasX = coords.x;
 				canvasY = coords.y;
 				var deltaShot = 30;
+				var killedInLoop = 0;
 
 				particles.forEach(function(particle) {
+					//Check if the click is inside troll area
 					if( (particle.x > canvasX - ((img_width/2)+deltaShot) && particle.x < canvasX + ((img_width/2)+deltaShot)) 
-						&& (particle.y > canvasY - ((img_height/2)+deltaShot) && particle.y < canvasY +((img_height/2)+deltaShot) ) && particle.dead == false ){
+						&& (particle.y > canvasY - ((img_height/2)+deltaShot) && particle.y < canvasY +((img_height/2)+deltaShot) ) && particle.dead == false && killedInLoop == 0){
+
+
 						particle.dead = true;
+						killingspree ++;
+
+						//start the  blood animations
 						var splattern = document.createElement("div");
 						document.body.appendChild(splattern);
 
@@ -276,7 +286,9 @@ Your browser does not support the audio element.
 
 						$(splattern).css('top',canvasY-85).css('left',canvasX-150);
 						$(splattern).css('-webkit-transform', 'rotateZ('+Math.round(Math.random()*(180-0)+0)+'deg)');
+
 						var bloodExplosion = 'explosion'+Math.round(Math.random()*(2-0)+0);
+
 						if( bloodExplosion == 'explosion0'){
 
 							explosion.className += 'explosion0'
@@ -287,9 +299,10 @@ Your browser does not support the audio element.
 						}
 						
 						$(explosion).bind('oanimationend  webkitAnimationEnd animationend mozAnimationEnd', function(event) { 
+							//this prevent the  child ending animation to fail the callback ending in the parent div
 							event.stopPropagation()
 						   
-						   explosion.parentNode.removeChild(explosion);
+							explosion.parentNode.removeChild(explosion);
 						   
 
 						});
@@ -298,11 +311,11 @@ Your browser does not support the audio element.
 						   });
 
 
-						killingspree ++;
+						
 						points += 5;
 						$("#points").html(points);
 
-						if (killingspree == 7){
+						if ( killingspree == 7){
 							$("#killingspree").html('WOOO! KILLING SPREE! </br> +10  ')
 
 
@@ -324,12 +337,29 @@ Your browser does not support the audio element.
 
 						}
 
-					
+						killedInLoop = 1;
+						console.log('beccato');
 					}else{
-						killingspree=0;
+
+						
+							
+							console.log('Non beccato');
+		
+					
 					}
 				});
-				playPause();
+				if(killedInLoop == 0){
+
+							killingspree=0;	
+							console.log('Azzerato');
+
+
+				}
+
+				
+
+				playPause(); //let's play some dirty sound 
+				
 					// explosion.parentNode.removeChild(explosion);
 				
 
@@ -369,32 +399,58 @@ Your browser does not support the audio element.
 
 				this.vy = Math.random() * (-25 - -20) + -2;
 				// var rotating = parseInt(Math.random() * 10 );
-				var rotating = 4;
-					 if (rotating == 5){
-					 	this.rotate = 'left';
-					 }else if(rotating == 6){
-					 	this.rotate = 'right';
-					 }
+				var rotating = 2;
+
+					//DEVELOPING ROTATION
+
+					 // if (rotating == 5){
+					 // 	this.rotate = 'left';
+					 // }else if(rotating == 6){
+					 // 	this.rotate = 'right';
+					 // }
+				this.translateX =0;
 
 				//we will call this function to actually draw the bouncing object at EVERY FRAME
 
 				this.draw = function() {
 					// Bouncing pictures were not bouncing because there were no this.x this.y . Shame on me. 
 
-					 if (this.rotate == 'left'){
-					 	ctx.save();
-					 	ctx.translate(0,0);
-					 	ctx.rotate(-2 * (Math.PI /360) );
-					 	ctx.drawImage(img,this.x,this.y);
-					 	ctx.restore();
+					 if (this.rotate == 'left'){ //DEVELOPING ROTATION
 
-					 }else if (this.rotate == 'right'){
-					 	ctx.translate(this.x, this.y);
-						ctx.rotate(Math.PI /4);
-						ctx.translate(canvas.width/2, 0);
+					 	// ctx.save();
+					 	// ctx.translate(0,0);
+					 	// ctx.rotate(-2 * (Math.PI /360) );
+					 	// ctx.drawImage(img,this.x,this.y);
+					 	// ctx.restore();
+					 	//Convert degrees to radian 
+			
+						var rad = -3 * Math.PI / 180;
+						this.translateX +=  1;
+						var translateY =  200;
 
 
-					 	ctx.drawImage(img,this.x,this.y);
+					    //Set the origin to the center of the image
+					    ctx.translate(this.translateX , translateY);
+
+
+					    //Rotate the canvas around the origin
+					    ctx.rotate(rad);
+
+					    //draw the image    
+					    ctx.drawImage(img, -61,-50);
+					    // ctx.translate(-this.translateX , -translateY);
+
+					    //reset the canvas  
+					   
+					    
+
+					 }else if (this.rotate == 'right'){	//DEVELOPING ROTATION
+					 // 	ctx.translate(this.x, this.y);
+						// ctx.rotate(Math.PI /4);
+						// ctx.translate(canvas.width/2, 0);
+
+
+					 // 	ctx.drawImage(img,this.x,this.y);
 
 
 
@@ -435,7 +491,7 @@ Your browser does not support the audio element.
 				requestAnimationFrame(renderFrame);
 
 				// Clearing screen to prevent trails
-									ctx.clearRect(0,0, W, H);
+				ctx.clearRect(0,0, W, H);
 
 
 				particles.forEach(function(particle) {
@@ -460,34 +516,34 @@ Your browser does not support the audio element.
 						particle.x - particle.radius < 0 ||
 						// off the bottom
 						particle.y + particle.radius > H
-					) {
+						) {
 
-						// If any of the above conditions are met
-						// then we need to re-position the bouncing objects
-						// on the base :)
+							// If any of the above conditions are met
+							// then we need to re-position the bouncing objects
+							// on the base :)
 
 
-						// If we do not re-set the velocities then
-						// the bouncing objects will stick to base :D
+							// If we do not re-set the velocities then
+							// the bouncing objects will stick to base :D
 
-						// Velocity X
-						particle.dead = false;
-						particle.x = parseInt(Math.random() * W);
-						particle.y = H;
-						if (particle.x > W/2 ){
+							// Velocity X
+							particle.dead = false;
+							particle.x = parseInt(Math.random() * W);
+							particle.y = H;
+							if (particle.x > W/2 ){
 
-							particle.vx = Math.random() * (-15 - -5) + -5;
+								particle.vx = Math.random() * (-15 - -5) + -5;
 
-						}else{
+							}else{
 
-							particle.vx = Math.random() * (15 - 5) + 5;
+								particle.vx = Math.random() * (15 - 5) + 5;
+
+
+							}
+							particle.vy = Math.random() * (-25 - -22) + -25;
 
 
 						}
-						particle.vy = Math.random() * (-25 - -22) + -25;
-
-
-					}
 
 					if(particle.dead == false){
 
