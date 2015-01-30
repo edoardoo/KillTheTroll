@@ -186,7 +186,7 @@
 <body>
 		<div id="killingspree"></div>
 
-	<div id="presentation"><span id = "title">Kill the TROOOLLOLLOOOOLS!</span><span id = "points" value="0">0</span></div>
+	<div id="presentation"><span id = "title">Kill that bloody winnie!</span><span id = "points" value="0">0</span></div>
 	<canvas id="output" ></canvas>
 <audio preload="auto" controls id="bang">
   <source src="snd/bang.ogg" type="audio/ogg">
@@ -211,7 +211,7 @@ Your browser does not support the audio element.
 			        beginAnimation();
 			};
 			//yes, the src goes after
-			img.src = 'img/troll.png';
+			img.src = 'img/winnie.png';
 
 			//how many bouncing objects?
 			var particle_count = 2;  
@@ -219,11 +219,11 @@ Your browser does not support the audio element.
 			var particle;
 			var W = canvas.width = window.innerWidth;
 			var H = canvas.height = window.innerHeight;
-			var img_width = 120;
+			var img_width = 123;
 			var killingspree = 0;
 			var points = 0;
 
-			var img_height = 100;
+			var img_height = 150;
 			var song = document.getElementsByTagName('audio')[0];
 
 			function playPause() {
