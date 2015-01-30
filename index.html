@@ -236,6 +236,8 @@ Your browser does not support the audio element.
 			var img_width = 123;
 			var killingspree = 0;
 			var points = 0;
+			var deltaShot = 50;
+
 
 			var img_height = 150;
 			var song = document.getElementsByTagName('audio')[0];
@@ -261,7 +263,6 @@ Your browser does not support the audio element.
 			    var canvasX = 0;
 			    var canvasY = 0;
 			    var currentElement = this;
-			    var deltaShot = 50;
 
 			    do{
 			        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
