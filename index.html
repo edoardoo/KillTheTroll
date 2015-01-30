@@ -24,6 +24,18 @@
 		position: relative;
 		z-index: 0;
 	}
+	*{
+		-moz-user-select: -moz-none;
+	 	-khtml-user-select: none;
+	 	-webkit-user-select: none;
+
+	   /*
+	     Introduced in IE 10.
+	     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+	   */
+		-ms-user-select: none;
+		user-select: none;
+	}
 
 	canvas {
 		display: block;
@@ -217,14 +229,22 @@ Your browser does not support the audio element.
 			var particle_count = 2;  
 			var particles = [];
 			var particle;
-			var W = canvas.width = window.innerWidth;
-			var H = canvas.height = window.innerHeight;
+			var W = 0;
+			var H = 0;
+			updateCoordinates();
+
 			var img_width = 123;
 			var killingspree = 0;
 			var points = 0;
 
 			var img_height = 150;
 			var song = document.getElementsByTagName('audio')[0];
+
+			function updateCoordinates(){
+				W = canvas.width = window.innerWidth;
+				H = canvas.height = window.innerHeight;
+			}
+
 
 			function playPause() {
 				//finally multishot
@@ -241,6 +261,7 @@ Your browser does not support the audio element.
 			    var canvasX = 0;
 			    var canvasY = 0;
 			    var currentElement = this;
+			    var deltaShot = 50;
 
 			    do{
 			        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
@@ -255,6 +276,9 @@ Your browser does not support the audio element.
 			}
 
 			HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+			$(window).resize(function(){
+				updateCoordinates();
+			})
 			window.onclick = function(event){
 
 				//TODO: Got to split this code, tooooooo much all together...
@@ -262,7 +286,6 @@ Your browser does not support the audio element.
 
 				canvasX = coords.x;
 				canvasY = coords.y;
-				var deltaShot = 30;
 				var killedInLoop = 0;
 
 				particles.forEach(function(particle) {
